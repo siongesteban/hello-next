@@ -52,7 +52,7 @@ if (!dev && cluster.isMaster) {
       server.get('/p/:id', (req, res) => {
         const actualPage = '/post'
         const queryParams = { id: req.params.id }
-        app.render(req, res, actualPage, queryParams)
+        nextApp.render(req, res, actualPage, queryParams)
       });
 
       // Default catch-all renders Next app
