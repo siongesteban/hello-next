@@ -22,7 +22,7 @@ if (!dev && cluster.isMaster) {
   });
 
 } else {
-  const nextApp = next({ dir: '.', dev });
+  const nextApp = next({ dir: './src', dev });
   const nextHandler = nextApp.getRequestHandler();
 
   nextApp.prepare()
