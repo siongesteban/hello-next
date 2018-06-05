@@ -1,4 +1,5 @@
 import Document, { Head, Main, NextScript } from 'next/document'
+import style from '../styles/base.css'
 
 export default class MyDocument extends Document {
   static async getInitialProps(ctx) {
@@ -17,7 +18,7 @@ export default class MyDocument extends Document {
           <link rel="stylesheet" type="text/css" media="screen" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" />
           <link rel="stylesheet" href="/_next/static/style.css" />
         </Head>
-        <body>
+        <body className={style.body}>
           <Main />
           <NextScript />
         </body>
