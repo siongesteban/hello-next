@@ -7,6 +7,7 @@ const numCPUs = require('os').cpus().length;
 
 const dev = process.env.NODE_ENV !== 'production';
 const port = process.env.PORT || 3000;
+const routes = require('./routes')
 
 // Multi-process to utilize all CPU cores.
 if (!dev && cluster.isMaster) {
@@ -22,8 +23,10 @@ if (!dev && cluster.isMaster) {
   });
 
 } else {
-  const nextApp = next({ dir: './src', dev });
-  const nextHandler = nextApp.getRequestHandler();
+  const nextApp = next({ dev });
+  const nextHandler = routes.getRequestHandler(nextApp, ({req, res, route, query}) => {
+    nextApp.render(req, res, route.page, query)
+  })
 
   nextApp.prepare()
     .then(() => {
@@ -49,20 +52,16 @@ if (!dev && cluster.isMaster) {
         maxAge: dev ? '0' : '365d'
       }));
     
-      server.get('/p/:id', (req, res) => {
-        const actualPage = '/post';
-        const queryParams = { id: req.params.id };
-        nextApp.render(req, res, actualPage, queryParams);
-      });
+      server.use(nextHandler);
 
-      // Default catch-all renders Next app
-      server.get('*', (req, res) => {
-        // res.set({
-        //   'Cache-Control': 'public, max-age=3600'
-        // });
-        const parsedUrl = url.parse(req.url, true);
-        nextHandler(req, res, parsedUrl);
-      });
+      // // Default catch-all renders Next app
+      // server.get('*', (req, res) => {
+      //   // res.set({
+      //   //   'Cache-Control': 'public, max-age=3600'
+      //   // });
+      //   const parsedUrl = url.parse(req.url, true);
+      //   nextHandler(req, res, parsedUrl);
+      // });
 
       server.listen(port, (err) => {
         if (err) throw err;

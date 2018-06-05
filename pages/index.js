@@ -1,5 +1,5 @@
-import Link from 'next/link'
 import fetch from 'isomorphic-unfetch'
+import { Link } from '../routes'
 
 const Index = (props) => (
   <div>
@@ -7,7 +7,7 @@ const Index = (props) => (
     <ul>
       {props.shows.map(({ show }) => (
         <li key={show.id}>
-          <Link as={`/p/${show.id}`} href={`/post?id=${show.id}`}>
+          <Link route="post" params={{ id: show.id }}>
             <a>{show.name}</a>
           </Link>
         </li>
