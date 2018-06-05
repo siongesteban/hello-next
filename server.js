@@ -1,71 +1,71 @@
-const express = require('express');
-const next = require('next');
-const path = require('path');
-const url = require('url');
-const cluster = require('cluster');
-const numCPUs = require('os').cpus().length;
+const express = require('express')
+const next = require('next')
+const path = require('path')
+const url = require('url')
+const cluster = require('cluster')
+const numCPUs = require('os').cpus().length
 
-const dev = process.env.NODE_ENV !== 'production';
-const port = process.env.PORT || 3000;
-const routes = require('./routes')
+const dev = process.env.NODE_ENV !== 'production'
+const port = process.env.PORT || 3000
+const routes = require('./src/routes')
 
 // Multi-process to utilize all CPU cores.
 if (!dev && cluster.isMaster) {
-  console.log(`Node cluster master ${process.pid} is running`);
+  console.log(`Node cluster master ${process.pid} is running`)
 
   // Fork workers.
   for (let i = 0; i < numCPUs; i++) {
-    cluster.fork();
+    cluster.fork()
   }
 
   cluster.on('exit', (worker, code, signal) => {
-    console.error(`Node cluster worker ${worker.process.pid} exited: code ${code}, signal ${signal}`);
-  });
+    console.error(`Node cluster worker ${worker.process.pid} exited: code ${code}, signal ${signal}`)
+  })
 
 } else {
-  const nextApp = next({ dev });
+  const nextApp = next({ dir: './src', dev })
   const nextHandler = routes.getRequestHandler(nextApp, ({req, res, route, query}) => {
     nextApp.render(req, res, route.page, query)
   })
 
   nextApp.prepare()
     .then(() => {
-      const server = express();
+      const server = express()
 
       if (!dev) {
         // Enforce SSL & HSTS in production
         server.use(function(req, res, next) {
-          var proto = req.headers["x-forwarded-proto"];
-          if (proto === "https") {
+          var proto = req.headers['x-forwarded-proto']
+          if (proto === 'https') {
             res.set({
               'Strict-Transport-Security': 'max-age=31557600' // one-year
-            });
-            return next();
+            })
+            return next()
           }
-          res.redirect("https://" + req.headers.host + req.url);
-        });
+          res.redirect('https://' + req.headers.host + req.url)
+        })
       }
       
       // Static files
       // https://github.com/zeit/next.js/tree/4.2.3#user-content-static-file-serving-eg-images
       server.use('/static', express.static(path.join(__dirname, 'static'), {
         maxAge: dev ? '0' : '365d'
-      }));
+      }))
     
-      server.use(nextHandler);
+      server.use(nextHandler)
 
       // // Default catch-all renders Next app
       // server.get('*', (req, res) => {
       //   // res.set({
       //   //   'Cache-Control': 'public, max-age=3600'
-      //   // });
-      //   const parsedUrl = url.parse(req.url, true);
-      //   nextHandler(req, res, parsedUrl);
-      // });
+      //   // })
+      //   const parsedUrl = url.parse(req.url, true)
+      //   nextHandler(req, res, parsedUrl)
+      // })
 
       server.listen(port, (err) => {
-        if (err) throw err;
-        console.log(`Listening on http://localhost:${port}`);
-      });
-    });
+        if (err) throw err
+        console.log(`Listening on http://localhost:${port}`)
+      })
+    })
 }
