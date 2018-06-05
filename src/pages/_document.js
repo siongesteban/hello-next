@@ -16,6 +16,7 @@ export default class MyDocument extends Document {
           <title>Siong Esteban</title>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <link rel="stylesheet" type="text/css" media="screen" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" />
+          <link rel="stylesheet" href="/static/nprogress.css" />
           <link rel="stylesheet" href="/_next/static/style.css" />
         </Head>
         <body className={style.body}>
